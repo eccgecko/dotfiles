@@ -9,6 +9,9 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
+# Neovim AppImage
+export PATH="$PATH:/opt/nvim/"
+
 # Rust/Cargo
 . "$HOME/.cargo/env"
 
@@ -126,10 +129,8 @@ export LANG=en_US.UTF-8
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# Neovim AppImage
-export PATH="$PATH:/opt/nvim/"
 export EDITOR="nvim"
-export VISUAL="nvim
+export VISUAL="nvim"
 bindkey -v
 alias vim="nvim"
 alias vi="nvim"
