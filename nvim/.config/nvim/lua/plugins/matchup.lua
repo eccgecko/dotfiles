@@ -16,4 +16,15 @@ return {
       },
     },
   },
+
+  -- enable treesitter-powered matching and quote tracking for vim-matchup
+  {
+    "nvim-treesitter/nvim-treesitter",
+    opts = {
+      matchup = {
+        enable = true,
+        enable_quotes = true,
+      },
+    },
+  },
 }
