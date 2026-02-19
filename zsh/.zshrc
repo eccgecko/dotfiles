@@ -12,9 +12,6 @@ fi
 # Rust/Cargo
 . "$HOME/.cargo/env"
 
-# Neovim AppImage
-export PATH="$PATH:/opt/nvim/"
-
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -129,10 +126,13 @@ export LANG=en_US.UTF-8
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+# Neovim AppImage
+export PATH="$PATH:/opt/nvim/"
+export EDITOR="nvim"
+export VISUAL="nvim
 bindkey -v
 alias vim="nvim"
 alias vi="nvim"
-export EDITOR="nvim"
-export VISUAL="nvim"
 
+# Secure ShellFish (iOS SSH App) Intergration
 test -e "$HOME/.shellfishrc" && source "$HOME/.shellfishrc"
