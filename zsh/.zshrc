@@ -103,7 +103,7 @@ apt_upgr='full-upgrade'
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
-
+RPROMPT='%F{yellow}%~%f'
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
