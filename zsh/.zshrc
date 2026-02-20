@@ -86,6 +86,7 @@ ZSH_THEME="robbyrussell"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
 git                  # git aliases and status info
+debian
 z                    # jump to frequently used directories (e.g. `z myproject`)
 sudo                 # press Esc twice to prepend sudo to last command
 history              # better history search
@@ -94,7 +95,8 @@ colored-man-pages    # adds color to man pages
 zsh-autosuggestions
 zsh-syntax-highlighting
 )
-
+apt_pref='apt'
+apt_upgr='full-upgrade'
 #VI_MODE_SET_CURSOR=true          # cursor changes shape by mode
 #VI_MODE_RESET_PROMPT_ON_MODE_CHANGE=true  # prompt updates when you switch mode
 
