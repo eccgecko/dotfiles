@@ -7,10 +7,10 @@
 -- The corresponding Nix packages are declared in nixos-config at:
 --   users/gecko/home.nix -> programs.neovim.extraPackages
 
-  local is_nix = vim.uv.fs_stat("/etc/NIXOS") ~= nil
-  if not is_nix then
-    return {}
-  end
+local is_nix = vim.uv.fs_stat("/etc/NIXOS") ~= nil
+if not is_nix then
+  return {}
+end
 
   return {
     -- Disable mason: it downloads FHS-incompatible binaries that won't
