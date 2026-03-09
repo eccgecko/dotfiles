@@ -103,7 +103,7 @@ apt_upgr='full-upgrade'
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
-RPROMPT='%F{yellow}%~%f'
+#
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
@@ -139,3 +139,9 @@ alias vi="nvim"
 
 # Secure ShellFish (iOS SSH App) Intergration
 test -e "$HOME/.shellfishrc" && source "$HOME/.shellfishrc"
+# Set RPROMPT everywhere except Secure ShellFish on iOS,
+# where the narrow screen makes the right-side prompt impractical.
+# We check LC_TERMINAL because TERM_PROGRAM gets overwritten by tmux.
+if [[ "$LC_TERMINAL" != "ShellFish" ]]; then
+    RPROMPT='%F{green}%~%f'
+fi
