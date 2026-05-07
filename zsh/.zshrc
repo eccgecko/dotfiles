@@ -136,6 +136,10 @@ alias vim="nvim"
 alias vi="nvim"
 alias bat="batcat"
 
+# Git aliases (match my NixOS setup; gp already provided by oh-my-zsh git plugin)
+alias gs="git status"
+alias gpl="git pull"
+
 # Secure ShellFish (iOS SSH App) Intergration
 test -e "$HOME/.shellfishrc" && source "$HOME/.shellfishrc"
 # Set RPROMPT everywhere except Secure ShellFish on iOS,
