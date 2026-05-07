@@ -134,8 +134,10 @@ export LANG=en_US.UTF-8
 export EDITOR="nvim"
 export VISUAL="nvim"
 bindkey -v
+alias sudo="sudo "
 alias vim="nvim"
 alias vi="nvim"
+alias bat="batcat"
 
 # Secure ShellFish (iOS SSH App) Intergration
 test -e "$HOME/.shellfishrc" && source "$HOME/.shellfishrc"
