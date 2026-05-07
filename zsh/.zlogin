@@ -6,6 +6,9 @@
 # Updated on 07-05-2026: TTY/TERM guard before ANSI; dpkg-query for OMV version;
 # memory thresholds 80%/60%; consolidated zpool list calls; status -x via case;
 # LOAD_1M precomputed (no echo|awk); removed dead DRIVE_ISSUES reference
+# Updated on 07-05-2026 (later): added PSI cpu/memory/io readings from
+# /proc/pressure/* (avg10/60/300 from "some" line, color-coded on avg10
+# at green<5% / yellow<20% / red>=20% thresholds)
 #
 # System information with colors for SSH logins
 if { [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; } && [ -t 1 ] && [ "${TERM:-dumb}" != "dumb" ]; then
@@ -27,6 +30,9 @@ if { [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; } && [ -t 1 ] && [ "${TERM:-dumb
     LABEL_UPTIME="Uptime:"
     LABEL_MEMORY="Memory:"
     LABEL_LOAD="Load Avg:"
+    LABEL_PSI_CPU="PSI CPU:"
+    LABEL_PSI_MEM="PSI Mem:"
+    LABEL_PSI_IO="PSI I/O:"
     
     # Adaptive labels and padding based on terminal width
     if [ "$TERM_WIDTH" -lt 50 ]; then
@@ -87,7 +93,22 @@ if { [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; } && [ -t 1 ] && [ "${TERM:-dumb
         LOAD_INFO=$(awk '{printf "%s %s %s", $1, $2, $3}' /proc/loadavg)
         LOAD_1M=${LOAD_INFO%% *}
     fi
-    
+
+    # Get PSI (Pressure Stall Information) avg10/avg60/avg300 from "some" line
+    # Requires psi=1 in cmdline.txt (Pi) or CONFIG_PSI=y kernel
+    PSI_CPU=""
+    PSI_MEM=""
+    PSI_IO=""
+    if [ -f /proc/pressure/cpu ]; then
+        PSI_CPU=$(awk '/^some/ {gsub(/avg[0-9]+=/, ""); printf "%s %s %s", $2, $3, $4}' /proc/pressure/cpu)
+    fi
+    if [ -f /proc/pressure/memory ]; then
+        PSI_MEM=$(awk '/^some/ {gsub(/avg[0-9]+=/, ""); printf "%s %s %s", $2, $3, $4}' /proc/pressure/memory)
+    fi
+    if [ -f /proc/pressure/io ]; then
+        PSI_IO=$(awk '/^some/ {gsub(/avg[0-9]+=/, ""); printf "%s %s %s", $2, $3, $4}' /proc/pressure/io)
+    fi
+
     # Get other system info
     KERNEL_INFO=$(uname -r)
     UPTIME_INFO=$(uptime -p)
@@ -96,7 +117,7 @@ if { [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; } && [ -t 1 ] && [ "${TERM:-dumb
     MAX_LEN=${#HOSTNAME_LINE}
     
     # Check all line lengths
-    for content in "$OS_CONTENT" "$OMV_VERSION" "$KERNEL_INFO" "$UPTIME_INFO" "$MEM_INFO" "$LOAD_INFO"; do
+    for content in "$OS_CONTENT" "$OMV_VERSION" "$KERNEL_INFO" "$UPTIME_INFO" "$MEM_INFO" "$LOAD_INFO" "$PSI_CPU" "$PSI_MEM" "$PSI_IO"; do
         [ -z "$content" ] && continue
         LINE_LEN=$((PAD_WIDTH + ${#content}))
         [ $LINE_LEN -gt $MAX_LEN ] && MAX_LEN=$LINE_LEN
@@ -152,7 +173,29 @@ if { [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; } && [ -t 1 ] && [ "${TERM:-dumb
             printf "${GREEN}%-${PAD_WIDTH}s${NC}%s\n" "$LABEL_LOAD" "$LOAD_INFO"
         fi
     fi
-    
+
+    # PSI (Pressure Stall Information) — color coded on avg10:
+    # green < 5%, yellow 5-20%, red >= 20%
+    for psi_pair in \
+        "$LABEL_PSI_CPU|$PSI_CPU" \
+        "$LABEL_PSI_MEM|$PSI_MEM" \
+        "$LABEL_PSI_IO|$PSI_IO"; do
+        psi_label=${psi_pair%%|*}
+        psi_value=${psi_pair#*|}
+        [ -z "$psi_value" ] && continue
+        psi_avg10=${psi_value%% *}
+        psi_status=$(awk -v p="$psi_avg10" 'BEGIN {
+            if (p >= 20)     print "red"
+            else if (p >= 5) print "yellow"
+            else             print "green"
+        }')
+        case "$psi_status" in
+            red)    printf "${GREEN}%-${PAD_WIDTH}s${NC}${RED}%s${NC}\n"    "$psi_label" "$psi_value" ;;
+            yellow) printf "${GREEN}%-${PAD_WIDTH}s${NC}${YELLOW}%s${NC}\n" "$psi_label" "$psi_value" ;;
+            *)      printf "${GREEN}%-${PAD_WIDTH}s${NC}%s\n"               "$psi_label" "$psi_value" ;;
+        esac
+    done
+
     printf "${CYAN}%s${NC}\n" "$SEPARATOR"
     echo ""
     
@@ -238,8 +281,10 @@ if { [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; } && [ -t 1 ] && [ "${TERM:-dumb
     # Clean up color variables to avoid polluting the shell environment
     unset RED GREEN YELLOW BLUE CYAN WHITE NC
     unset TERM_WIDTH LABEL_OS LABEL_KERNEL LABEL_UPTIME LABEL_MEMORY LABEL_LOAD LABEL_OMV
+    unset LABEL_PSI_CPU LABEL_PSI_MEM LABEL_PSI_IO
     unset PAD_WIDTH SHOW_GNU_LINUX HOSTNAME_LINE OS_CONTENT OMV_VERSION
     unset MEM_INFO MEM_PERCENT LOAD_INFO LOAD_1M LOAD_STATUS NPROC
+    unset PSI_CPU PSI_MEM PSI_IO psi_pair psi_label psi_value psi_avg10 psi_status
     unset KERNEL_INFO UPTIME_INFO MAX_LEN LINE_LEN SEPARATOR_LEN SEPARATOR
     unset POOL_HEALTH COLS
 fi
