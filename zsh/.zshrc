@@ -12,9 +12,6 @@ fi
 # Neovim AppImage
 export PATH="$PATH:/opt/nvim/"
 
-# Rust/Cargo
-. "$HOME/.cargo/env"
-
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
