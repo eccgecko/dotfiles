@@ -148,3 +148,6 @@ test -e "$HOME/.shellfishrc" && source "$HOME/.shellfishrc"
 if [[ "$LC_TERMINAL" != "ShellFish" ]]; then
     RPROMPT='%F{green}%~%f'
 fi
+
+# dotbin scripts
+export PATH="$HOME/bin:$PATH"
